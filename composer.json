@@ -1,5 +1,5 @@
 {
-    "name": "enqueue/enqueue-elastica-bundle",
+    "name": "enqueue/elastica-bundle",
     "type": "symfony-bundle",
     "description": "The bundle adds extra features to FOSElasticaBundle bundle",
     "keywords": ["elasticsearch", "elastica", "fos", "performance"],
