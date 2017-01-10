@@ -1,5 +1,5 @@
 <?php
-namespace Enqueue\ElasticaBundle\Listener;
+namespace Enqueue\ElasticaBundle\Elastica;
 
 use Enqueue\Psr\Context;
 use Enqueue\Util\JSON;

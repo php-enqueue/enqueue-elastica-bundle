@@ -1,10 +1,10 @@
 services:
-  enqueue_elastica.async.elastica_populate_processor:
+  enqueue_elastica.populate_processor:
       class: 'Enqueue\ElasticaBundle\Async\ElasticaPopulateProcessor'
       arguments:
           - '@fos_elastica.provider_registry'
 
-  app.listener.purge_fos_elastic_populate_queue:
+  enqueue_elastica.purge_fos_elastic_populate_queue_listener:
       class: 'Enqueue\ElasticaBundle\Listener\PurgeFosElasticPopulateQueueListener'
       arguments:
           - '@enqueue.transport.context'
