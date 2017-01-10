@@ -1,0 +1,21 @@
+{
+    "name": "enqueue/enqueue-elastica-bundle",
+    "type": "symfony-bundle",
+    "description": "The bundle adds extra features to FOSElasticaBundle bundle",
+    "keywords": ["elasticsearch", "elastica", "fos", "performance"],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.6",
+        "friendsofsymfony/elastica-bundle": "^3",
+        "enqueue/enqueue-bundle": "^0.2"
+    },
+    "autoload": {
+        "psr-4": { "Enqueue\\ElasticaBundle\\": "" }
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.2.x-dev"
+        }
+    }
+}
