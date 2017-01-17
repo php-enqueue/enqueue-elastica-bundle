@@ -81,6 +81,12 @@ So you have to run as usual
 $ ./bin/console fos:elastica:populate 
 ```
 
+If you want to disable this behavior you can un register the bundle or use env var
+
+```bash
+$ ENQUEUE_ELASTICA_DISABLE_ASYNC=1 ./bin/console fos:elastica:populate 
+```
+
 and have pull of consumer commands run somewhere, run them as many as you'd like
  
 ```bash

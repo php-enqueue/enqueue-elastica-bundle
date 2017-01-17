@@ -32,32 +32,39 @@ class ElasticaPopulateProcessor implements Processor
         }
 
         if ($message->isRedelivered()) {
-            $replyMessage = $context->createMessage(false);
-            $replyQueue = $context->createQueue($message->getReplyTo());
-            $context->createProducer()->send($replyQueue, $replyMessage);
+            $this->sendReply($context, $message, false);
 
             return self::REJECT;
         }
 
-        $options = JSON::decode($message->getBody());
+        try {
+            $options = JSON::decode($message->getBody());
 
-        $provider = $this->providerRegistry->getProvider($options['indexName'], $options['typeName']);
-        $provider->populate(null, $options);
+            $provider = $this->providerRegistry->getProvider($options['indexName'], $options['typeName']);
+            $provider->populate(null, $options);
 
-        $this->sendReply($context, $message->getReplyTo(), true);
+            $this->sendReply($context, $message, true);
 
-        return self::ACK;
+            return self::ACK;
+        } catch (\Exception $e) {
+            $this->sendReply($context, $message, false);
+
+            return self::REJECT;
+        }
     }
 
     /**
      * @param Context $context
-     * @param string $replyTo
-     * @param bool $message
+     * @param Message $message
+     * @param bool $successful
      */
-    private function sendReply(Context $context, $replyTo, $message)
+    private function sendReply(Context $context, Message $message, $successful)
     {
-        $replyMessage = $context->createMessage($message);
-        $replyQueue = $context->createQueue($replyTo);
+        $replyMessage = $context->createMessage($message->getBody(), $message->getProperties(), $message->getHeaders());
+        $replyMessage->setProperty('fos-populate-successful', (int) $successful);
+
+        $replyQueue = $context->createQueue($message->getReplyTo());
+
         $context->createProducer()->send($replyQueue, $replyMessage);
     }
 }

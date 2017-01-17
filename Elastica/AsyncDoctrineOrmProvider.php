@@ -27,6 +27,10 @@ class AsyncDoctrineOrmProvider extends Provider
      */
     protected function doPopulate($options, \Closure $loggerClosure = null)
     {
+        if (getenv('ENQUEUE_ELASTICA_DISABLE_ASYNC')) {
+            return parent::doPopulate($options, $loggerClosure);
+        }
+
         $this->batchSize = null;
         if ($options['real_populate']) {
             $this->batchSize = $options['offset'] + $options['batch_size'];
@@ -58,8 +62,18 @@ class AsyncDoctrineOrmProvider extends Provider
         $limitTime = time() + 180;
         while ($nbMessages) {
             if ($message = $consumer->receive(20000)) {
-                if (null !== $loggerClosure) {
-                    $loggerClosure($options['batch_size'], $nbObjects);
+                $errorMessage = null;
+
+                $errorMessage = null;
+                if (false == $message->getProperty('fos-populate-successful', false)) {
+                    $errorMessage = sprintf(
+                        '<error>Batch failed: </error> <comment>Failed to process message %s</comment>',
+                        $message->getBody()
+                    );
+                }
+
+                if ($loggerClosure) {
+                    $loggerClosure($options['batch_size'], $nbObjects, $errorMessage);
                 }
 
                 $consumer->acknowledge($message);
