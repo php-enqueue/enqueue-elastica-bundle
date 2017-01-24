@@ -61,15 +61,12 @@ Here's an example of what your EnqueueBundle configuration may look like:
 ```yaml
 enqueue:
     transport:
-        default: 'amqp'
-        amqp:
-            host: '%rabbitmq_host%'
-            port: '%rabbitmq_port%'
-            login: '%rabbitmq_user%'
-            password: '%rabbitmq_password%'
-            vhost: '%rabbitmq_vhost%'
+        default: 'fs'
+        fs:
+            store_dir: %kernel.root_dir%/../var/messages
 ```
 
+Sure you can configure other transports like: [rabbitmq, amqp, stomp and so on](https://github.com/php-enqueue/enqueue-dev/blob/master/docs/bundle/config_reference.md)
 Create a `fos_elastica.populate` queue on broker side, if needed.
 
 ## Usage 
