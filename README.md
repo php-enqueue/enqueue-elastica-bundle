@@ -67,7 +67,7 @@ enqueue:
 ```
 
 Sure you can configure other transports like: [rabbitmq, amqp, stomp and so on](https://github.com/php-enqueue/enqueue-dev/blob/master/docs/bundle/config_reference.md)
-Create a `fos_elastica.populate` queue on broker side, if needed.
+Create a `fos_elastica_populate` queue on broker side, if needed.
 
 ## Usage 
 
@@ -87,7 +87,7 @@ $ ENQUEUE_ELASTICA_DISABLE_ASYNC=1 ./bin/console fos:elastica:populate
 and have pull of consumer commands run somewhere, run them as many as you'd like
  
 ```bash
-$ ./bin/console enqueue:transport:consume fos_elastica.populate enqueue_elastica.populate_processor 
+$ ./bin/console enqueue:transport:consume enqueue_elastica.populate_processor -vv 
 ```
 
 We suggest to use [supervisor](http://supervisord.org/) on production to control numbers of consumers and restart them.   
@@ -97,7 +97,7 @@ Here's config example
 ```
 # cat /etc/supervisor/conf.d/fos_elastica_populate.conf 
 [program:fos_elastica_populate]
-command=/mqs/symfony/bin/console enqueue:transport:consume fos_elastica.populate enqueue_elastica.populate_processor
+command=/mqs/symfony/bin/console enqueue:transport:consume fos_elastica_populate enqueue_elastica.populate_processor
 process_name=%(program_name)s_%(process_num)02d
 numprocs=10
 autostart=true
