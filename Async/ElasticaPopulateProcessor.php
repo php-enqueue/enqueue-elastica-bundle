@@ -1,13 +1,14 @@
 <?php
 namespace Enqueue\ElasticaBundle\Async;
 
-use Enqueue\Psr\Context;
-use Enqueue\Psr\Message;
-use Enqueue\Psr\Processor;
+use Enqueue\Consumption\QueueSubscriberInterface;
+use Enqueue\Psr\PsrContext;
+use Enqueue\Psr\PsrMessage;
+use Enqueue\Psr\PsrProcessor;
 use Enqueue\Util\JSON;
 use FOS\ElasticaBundle\Provider\ProviderRegistry;
 
-class ElasticaPopulateProcessor implements Processor
+class ElasticaPopulateProcessor implements PsrProcessor, QueueSubscriberInterface
 {
     /**
      * @var ProviderRegistry
@@ -25,7 +26,7 @@ class ElasticaPopulateProcessor implements Processor
     /**
      * {@inheritdoc}
      */
-    public function process(Message $message, Context $context)
+    public function process(PsrMessage $message, PsrContext $context)
     {
         if (false == $message->getReplyTo()) {
             return self::REJECT;
@@ -54,11 +55,11 @@ class ElasticaPopulateProcessor implements Processor
     }
 
     /**
-     * @param Context $context
-     * @param Message $message
+     * @param PsrContext $context
+     * @param PsrMessage $message
      * @param bool $successful
      */
-    private function sendReply(Context $context, Message $message, $successful)
+    private function sendReply(PsrContext $context, PsrMessage $message, $successful)
     {
         $replyMessage = $context->createMessage($message->getBody(), $message->getProperties(), $message->getHeaders());
         $replyMessage->setProperty('fos-populate-successful', (int) $successful);
@@ -66,5 +67,13 @@ class ElasticaPopulateProcessor implements Processor
         $replyQueue = $context->createQueue($message->getReplyTo());
 
         $context->createProducer()->send($replyQueue, $replyMessage);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getSubscribedQueues()
+    {
+        return ['fos_elastica_populate'];
     }
 }

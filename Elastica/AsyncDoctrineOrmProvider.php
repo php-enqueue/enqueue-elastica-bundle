@@ -1,7 +1,7 @@
 <?php
 namespace Enqueue\ElasticaBundle\Elastica;
 
-use Enqueue\Psr\Context;
+use Enqueue\Psr\PsrContext;
 use Enqueue\Util\JSON;
 use FOS\ElasticaBundle\Doctrine\ORM\Provider;
 
@@ -10,14 +10,14 @@ class AsyncDoctrineOrmProvider extends Provider
     private $batchSize;
 
     /**
-     * @var Context
+     * @var PsrContext
      */
     private $context;
 
     /**
-     * @param Context $context
+     * @param PsrContext $context
      */
-    public function setContext(Context $context)
+    public function setContext(PsrContext $context)
     {
         $this->context = $context;
     }
@@ -42,7 +42,7 @@ class AsyncDoctrineOrmProvider extends Provider
         $nbObjects = $this->countObjects($queryBuilder);
         $offset = $options['offset'];
 
-        $queue = $this->context->createQueue('fos_elastica.populate');
+        $queue = $this->context->createQueue('fos_elastica_populate');
         $resultQueue = $this->context->createTemporaryQueue();
         $consumer = $this->context->createConsumer($resultQueue);
 

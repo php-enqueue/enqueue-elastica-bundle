@@ -1,21 +1,21 @@
 <?php
 namespace Enqueue\ElasticaBundle\Listener;
 
-use Enqueue\Psr\Context;
+use Enqueue\Psr\PsrContext;
 use FOS\ElasticaBundle\Event\IndexPopulateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PurgeFosElasticPopulateQueueListener implements EventSubscriberInterface
 {
     /**
-     * @var Context
+     * @var PsrContext
      */
     private $context;
 
     /**
-     * @param Context $context
+     * @param PsrContext $context
      */
-    public function __construct(Context $context)
+    public function __construct(PsrContext $context)
     {
         $this->context = $context;
     }
@@ -23,7 +23,7 @@ class PurgeFosElasticPopulateQueueListener implements EventSubscriberInterface
     public function onPreIndexPopulate(IndexPopulateEvent $event)
     {
         if (method_exists($this->context, 'purge')) {
-            $queue = $this->context->createQueue('fos_elastica.populate');
+            $queue = $this->context->createQueue('fos_elastica_populate');
 
             $this->context->purge($queue);
 
