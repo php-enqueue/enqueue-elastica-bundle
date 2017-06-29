@@ -7,6 +7,6 @@ services:
   enqueue_elastica.purge_fos_elastic_populate_queue_listener:
       class: 'Enqueue\ElasticaBundle\Listener\PurgeFosElasticPopulateQueueListener'
       arguments:
-          - '@enqueue.transport.context'
+          - '@enqueue.client.producer'
       tags:
           -  { name: 'kernel.event_subscriber' }

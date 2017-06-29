@@ -1,6 +1,7 @@
 <?php
 namespace Enqueue\ElasticaBundle\Async;
 
+use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
 use Enqueue\Psr\PsrContext;
 use Enqueue\Psr\PsrMessage;
@@ -8,7 +9,7 @@ use Enqueue\Psr\PsrProcessor;
 use Enqueue\Util\JSON;
 use FOS\ElasticaBundle\Provider\ProviderRegistry;
 
-class ElasticaPopulateProcessor implements PsrProcessor, QueueSubscriberInterface
+class ElasticaPopulateProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
 {
     /**
      * @var ProviderRegistry
@@ -72,8 +73,21 @@ class ElasticaPopulateProcessor implements PsrProcessor, QueueSubscriberInterfac
     /**
      * {@inheritdoc}
      */
+    public static function getSubscribedCommand()
+    {
+        return [
+            'processorName' => Commands::POPULATE,
+            'queueName' => Commands::POPULATE,
+            'queueNameHardcoded' => true,
+            'exclusive' => true,
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedQueues()
     {
-        return ['fos_elastica_populate'];
+        return [Commands::POPULATE];
     }
 }
