@@ -1,25 +1,29 @@
 <?php
 namespace Enqueue\ElasticaBundle\Elastica;
 
-use Enqueue\Psr\PsrContext;
-use Enqueue\Util\JSON;
+use Enqueue\Client\ProducerInterface;
+use Enqueue\ElasticaBundle\Async\Commands;
+use Enqueue\Rpc\Promise;
 use FOS\ElasticaBundle\Doctrine\ORM\Provider;
 
 class AsyncDoctrineOrmProvider extends Provider
 {
+    /**
+     * @var int
+     */
     private $batchSize;
 
     /**
-     * @var PsrContext
+     * @var ProducerInterface
      */
-    private $context;
+    private $producer;
 
     /**
-     * @param PsrContext $context
+     * @param ProducerInterface $producer
      */
-    public function setContext(PsrContext $context)
+    public function setContext(ProducerInterface $producer)
     {
-        $this->context = $context;
+        $this->producer = $producer;
     }
 
     /**
@@ -42,49 +46,41 @@ class AsyncDoctrineOrmProvider extends Provider
         $nbObjects = $this->countObjects($queryBuilder);
         $offset = $options['offset'];
 
-        $queue = $this->context->createQueue('fos_elastica_populate');
-        $resultQueue = $this->context->createTemporaryQueue();
-        $consumer = $this->context->createConsumer($resultQueue);
-
-        $producer = $this->context->createProducer();
-
-        $nbMessages = 0;
+        /** @var Promise[] $promises */
+        $promises = [];
         for (; $offset < $nbObjects; $offset += $options['batch_size']) {
             $options['offset'] = $offset;
             $options['real_populate'] = true;
-            $message = $this->context->createMessage(JSON::encode($options));
-            $message->setReplyTo($resultQueue->getQueueName());
-            $producer->send($queue, $message);
 
-            $nbMessages++;
+            $promises[] = $this->producer->sendCommand(Commands::POPULATE, $options, true);
         }
 
         $limitTime = time() + 180;
-        while ($nbMessages) {
-            if ($message = $consumer->receive(20000)) {
-                $errorMessage = null;
+        while ($promises) {
+            foreach ($promises as $index => $promise) {
+                if ($message = $promise->receiveNoWait()) {
+                    unset($promises[$index]);
 
-                $errorMessage = null;
-                if (false == $message->getProperty('fos-populate-successful', false)) {
-                    $errorMessage = sprintf(
-                        '<error>Batch failed: </error> <comment>Failed to process message %s</comment>',
-                        $message->getBody()
-                    );
+                    $errorMessage = null;
+                    if (false == $message->getProperty('fos-populate-successful', false)) {
+                        $errorMessage = sprintf(
+                            '<error>Batch failed: </error> <comment>Failed to process message %s</comment>',
+                            $message->getBody()
+                        );
+                    }
+
+                    if ($loggerClosure) {
+                        $loggerClosure($options['batch_size'], $nbObjects, $errorMessage);
+                    }
+
+                    $limitTime = time() + 180;
                 }
 
-                if ($loggerClosure) {
-                    $loggerClosure($options['batch_size'], $nbObjects, $errorMessage);
+                sleep(1);
+
+                if (time() > $limitTime) {
+                    throw new \LogicException(sprintf('No response in %d seconds', 180));
                 }
-
-                $consumer->acknowledge($message);
-
-                $nbMessages--;
-
-                $limitTime = time() + 180;
-            }
-
-            if (time() > $limitTime) {
-                throw new \LogicException(sprintf('No response in %d seconds', 180));
             }
         }
     }
