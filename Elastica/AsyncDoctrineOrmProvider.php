@@ -76,6 +76,8 @@ class AsyncDoctrineOrmProvider extends Provider
                     $limitTime = time() + 180;
                 }
 
+                sleep(1);
+
                 if (time() > $limitTime) {
                     throw new \LogicException(sprintf('No response in %d seconds', 180));
                 }

@@ -61,9 +61,7 @@ Here's an example of what your EnqueueBundle configuration may look like:
 ```yaml
 enqueue:
     transport:
-        default: 'fs'
-        fs:
-            store_dir: %kernel.root_dir%/../var/messages
+        default: 'file://%kernel.root_dir%/../var/messages'
 ```
 
 Sure you can configure other transports like: [rabbitmq, amqp, stomp and so on](https://github.com/php-enqueue/enqueue-dev/blob/master/docs/bundle/config_reference.md)
@@ -84,10 +82,16 @@ If you want to disable this behavior you can un register the bundle or use env v
 $ ENQUEUE_ELASTICA_DISABLE_ASYNC=1 ./bin/console fos:elastica:populate 
 ```
 
-and have pull of consumer commands run somewhere, run them as many as you'd like
+Run some consumers either using client (you might have to enable it) consume command:
+
+```bash
+$ ./bin/console enqueue:consume --setup-broker -vvv 
+```
+
+or a transport one: 
  
 ```bash
-$ ./bin/console enqueue:transport:consume enqueue_elastica.populate_processor -vv 
+$ ./bin/console enqueue:transport:consume enqueue_elastica.populate_processor -vvv 
 ```
 
 We suggest to use [supervisor](http://supervisord.org/) on production to control numbers of consumers and restart them.   
