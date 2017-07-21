@@ -1,7 +1,7 @@
 <?php
 namespace Enqueue\ElasticaBundle\Listener;
 
-use Enqueue\Psr\PsrContext;
+use Interop\Queue\PsrContext;
 use FOS\ElasticaBundle\Event\IndexPopulateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

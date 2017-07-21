@@ -3,9 +3,9 @@ namespace Enqueue\ElasticaBundle\Async;
 
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
-use Enqueue\Psr\PsrContext;
-use Enqueue\Psr\PsrMessage;
-use Enqueue\Psr\PsrProcessor;
+use Interop\Queue\PsrContext;
+use Interop\Queue\PsrMessage;
+use Interop\Queue\PsrProcessor;
 use Enqueue\Util\JSON;
 use FOS\ElasticaBundle\Provider\ProviderRegistry;
 
