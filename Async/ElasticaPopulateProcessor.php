@@ -3,6 +3,7 @@ namespace Enqueue\ElasticaBundle\Async;
 
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
+use Enqueue\Consumption\Result;
 use Interop\Queue\PsrContext;
 use Interop\Queue\PsrMessage;
 use Interop\Queue\PsrProcessor;
@@ -29,14 +30,10 @@ class ElasticaPopulateProcessor implements PsrProcessor, CommandSubscriberInterf
      */
     public function process(PsrMessage $message, PsrContext $context)
     {
-        if (false == $message->getReplyTo()) {
-            return self::REJECT;
-        }
-
         if ($message->isRedelivered()) {
-            $this->sendReply($context, $message, false);
+            $this->createReplyMessage($context, $message, false);
 
-            return self::REJECT;
+            return Result::reply($this->createReplyMessage($context, $message, false), Result::REJECT);
         }
 
         try {
@@ -45,13 +42,9 @@ class ElasticaPopulateProcessor implements PsrProcessor, CommandSubscriberInterf
             $provider = $this->providerRegistry->getProvider($options['indexName'], $options['typeName']);
             $provider->populate(null, $options);
 
-            $this->sendReply($context, $message, true);
-
-            return self::ACK;
+            return Result::reply($this->createReplyMessage($context, $message, true));
         } catch (\Exception $e) {
-            $this->sendReply($context, $message, false);
-
-            return self::REJECT;
+            return Result::reply($this->createReplyMessage($context, $message, false), Result::REJECT);
         }
     }
 
@@ -59,15 +52,15 @@ class ElasticaPopulateProcessor implements PsrProcessor, CommandSubscriberInterf
      * @param PsrContext $context
      * @param PsrMessage $message
      * @param bool $successful
+     *
+     * @return PsrMessage
      */
-    private function sendReply(PsrContext $context, PsrMessage $message, $successful)
+    private function createReplyMessage(PsrContext $context, PsrMessage $message, $successful)
     {
         $replyMessage = $context->createMessage($message->getBody(), $message->getProperties(), $message->getHeaders());
         $replyMessage->setProperty('fos-populate-successful', (int) $successful);
 
-        $replyQueue = $context->createQueue($message->getReplyTo());
-
-        $context->createProducer()->send($replyQueue, $replyMessage);
+        return $replyMessage;
     }
 
     /**

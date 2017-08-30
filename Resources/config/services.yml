@@ -3,6 +3,8 @@ services:
       class: 'Enqueue\ElasticaBundle\Async\ElasticaPopulateProcessor'
       arguments:
           - '@fos_elastica.provider_registry'
+      tags:
+          - { name: "enqueue.client.processor" }
 
   enqueue_elastica.purge_fos_elastic_populate_queue_listener:
       class: 'Enqueue\ElasticaBundle\Listener\PurgeFosElasticPopulateQueueListener'
