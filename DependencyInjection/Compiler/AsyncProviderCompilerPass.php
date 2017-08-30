@@ -27,7 +27,7 @@ class AsyncProviderCompilerPass implements CompilerPassInterface
 
                     $provider = $container->getDefinition($providerId);
                     $provider->setClass(AsyncDoctrineOrmProvider::class);
-                    $provider->addMethodCall('setContext', [new Reference('enqueue.transport.context')]);
+                    $provider->addMethodCall('setProducer', [new Reference('enqueue.client.producer')]);
                 }
             }
         }

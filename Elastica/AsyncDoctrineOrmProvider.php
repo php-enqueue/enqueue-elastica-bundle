@@ -21,7 +21,7 @@ class AsyncDoctrineOrmProvider extends Provider
     /**
      * @param ProducerInterface $producer
      */
-    public function setContext(ProducerInterface $producer)
+    public function setProducer(ProducerInterface $producer)
     {
         $this->producer = $producer;
     }
