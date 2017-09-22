@@ -1,6 +1,6 @@
 # Enqueue Elastica Bundle
 
-Improves performance of `fos:elastica:populate` commands by distributing the work among consumers. 
+Improves performance of `fos:elastica:populate` command from [FOSElasticaBundle](https://github.com/FriendsOfSymfony/FOSElasticaBundle) by distributing the work among consumers. 
 The performance gain depends on how much consumers you run. 
 For example 10 consumers may give you 5 to 7 times better performance.  
 
