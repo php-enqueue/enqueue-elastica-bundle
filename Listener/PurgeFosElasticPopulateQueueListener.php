@@ -26,8 +26,6 @@ class PurgeFosElasticPopulateQueueListener implements EventSubscriberInterface
             $queue = $this->context->createQueue('fos_elastica_populate');
 
             $this->context->purge($queue);
-
-            sleep(20);
         }
     }
 
