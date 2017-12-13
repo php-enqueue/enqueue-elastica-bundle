@@ -1,8 +1,7 @@
 <?php
-namespace Enqueue\ElasticaBundle\Async;
+namespace Enqueue\ElasticaBundle\Queue;
 
-
-class Commands
+final class Commands
 {
     const POPULATE = 'fos_elastica_populate';
 
