@@ -51,7 +51,7 @@ class PopulateProcessor implements PsrProcessor, CommandSubscriberInterface, Que
 
         $objectsCount = 0;
 
-//        try {
+        try {
             $data = JSON::decode($message->getBody());
 
             if (!isset($data['options'])) {
@@ -82,9 +82,9 @@ class PopulateProcessor implements PsrProcessor, CommandSubscriberInterface, Que
             $pagerPersister->insert($pager, $options);
 
             return Result::reply($this->createReplyMessage($context, $message, $objectsCount));
-//        } catch (\Throwable $e) {
-//            return Result::reply($this->createExceptionReplyMessage($context, $message, $objectsCount, $e), Result::REJECT);
-//        }
+        } catch (\Throwable $e) {
+            return Result::reply($this->createExceptionReplyMessage($context, $message, $objectsCount, $e), Result::REJECT);
+        }
     }
 
     /**
