@@ -4,7 +4,7 @@ namespace Enqueue\ElasticaBundle\Queue;
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
 use Enqueue\Util\JSON;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use FOS\ElasticaBundle\Persister\PersisterRegistry;
 use FOS\ElasticaBundle\Provider\IndexableInterface;
 use Interop\Queue\PsrContext;
 use Interop\Queue\PsrMessage;
@@ -14,9 +14,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 final class SyncIndexWithDoctrineORMObjectChangeProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
 {
     /**
-     * @var ObjectPersisterInterface
+     * @var PersisterRegistry
      */
-    private $objectPersister;
+    private $persisterRegistry;
 
     /**
      * @var IndexableInterface
@@ -28,9 +28,9 @@ final class SyncIndexWithDoctrineORMObjectChangeProcessor implements PsrProcesso
      */
     private $doctrine;
 
-    public function __construct(RegistryInterface $doctrine, ObjectPersisterInterface $objectPersister, IndexableInterface $indexable)
+    public function __construct(RegistryInterface $doctrine, PersisterRegistry $persisterRegistry, IndexableInterface $indexable)
     {
-        $this->objectPersister = $objectPersister;
+        $this->persisterRegistry = $persisterRegistry;
         $this->indexable = $indexable;
         $this->doctrine = $doctrine;
     }
@@ -46,42 +46,43 @@ final class SyncIndexWithDoctrineORMObjectChangeProcessor implements PsrProcesso
             return self::REJECT;
         }
 
-        $indexName = $data['indexName'];
-        $typeName = $data['typeName'];
+        $index = $data['indexName'];
+        $type = $data['typeName'];
 
-        $objectRepository = $this->doctrine->getManagerForClass($data['modelClass'])->getRepository($data['modelClass']);
+        $repository = $this->doctrine->getManagerForClass($data['modelClass'])->getRepository($data['modelClass']);
+        $persister = $this->persisterRegistry->getPersister($index, $type);
 
         switch ($data['action']) {
             case 'update':
-                if (false == $object = $objectRepository->find($data['id'])) {
-                    $this->objectPersister->deleteById($data['id']);
+                if (false == $object = $repository->find($data['id'])) {
+                    $persister->deleteById($data['id']);
 
                     return self::REJECT;
                 }
 
-                if ($this->objectPersister->handlesObject($object)) {
-                    if ($this->indexable->isObjectIndexable($indexName, $typeName, $object)) {
-                        $this->objectPersister->replaceOne($object);
+                if ($persister->handlesObject($object)) {
+                    if ($this->indexable->isObjectIndexable($index, $type, $object)) {
+                        $persister->replaceOne($object);
                     } else {
-                        $this->objectPersister->deleteOne($object);
+                        $persister->deleteOne($object);
                     }
                 }
 
                 break;
             case 'insert':
-                if (false == $object = $objectRepository->find($data['id'])) {
-                    $this->objectPersister->deleteById($data['id']);
+                if (false == $object = $repository->find($data['id'])) {
+                    $persister->deleteById($data['id']);
 
                     return self::REJECT;
                 }
 
-                if ($this->objectPersister->handlesObject($object) && $this->indexable->isObjectIndexable($indexName, $typeName, $object)) {
-                    $this->objectPersister->insertOne($object);
+                if ($persister->handlesObject($object) && $this->indexable->isObjectIndexable($index, $type, $object)) {
+                    $persister->insertOne($object);
                 }
 
                 break;
             case 'delete':
-                $this->objectPersister->deleteById($data['id']);
+                $persister->deleteById($data['id']);
 
                 break;
             default:

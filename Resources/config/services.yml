@@ -7,6 +7,15 @@ services:
       tags:
           - { name: "enqueue.client.processor" }
 
+  enqueue_elastica.sync_index_with_doctrine_orm_object_change_processor:
+      class: 'Enqueue\ElasticaBundle\Queue\SyncIndexWithDoctrineORMObjectChangeProcessor'
+      arguments:
+          - '@doctrine'
+          - '@fos_elastica.persister_registry'
+          - '@fos_elastica.indexable'
+      tags:
+          - { name: "enqueue.client.processor" }
+
   enqueue_elastica.purge_populate_queue_listener:
       class: 'Enqueue\ElasticaBundle\Persister\Listener\PurgePopulateQueueListener'
       arguments:
