@@ -4,21 +4,15 @@ namespace Enqueue\ElasticaBundle\Queue;
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
 use Enqueue\Consumption\Result;
-use FOS\ElasticaBundle\Persister\Event\Events;
-use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
-use FOS\ElasticaBundle\Persister\Event\PreInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\InPlacePagerPersister;
 use FOS\ElasticaBundle\Persister\PagerPersisterRegistry;
-use FOS\ElasticaBundle\Provider\PagerInterface;
 use FOS\ElasticaBundle\Provider\PagerProviderRegistry;
 use Interop\Queue\PsrContext;
 use Interop\Queue\PsrMessage;
 use Interop\Queue\PsrProcessor;
 use Enqueue\Util\JSON;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class PopulateProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
+final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
 {
     /**
      * @var PagerProviderRegistry
