@@ -2,7 +2,8 @@
 namespace Enqueue\ElasticaBundle\Doctrine;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Enqueue\ElasticaBundle\Queue\Commands;
+use Enqueue\ElasticaBundle\Doctrine\Queue\Commands;
+use Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor as SyncProcessor;
 use Enqueue\Util\JSON;
 use Interop\Queue\PsrContext;
 use Doctrine\Common\EventSubscriber;
@@ -33,22 +34,23 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
 
     public function postUpdate(LifecycleEventArgs $args)
     {
+
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage('update', $args);
+            $this->sendUpdateIndexMessage(SyncProcessor::UPDATE_ACTION, $args);
         }
     }
 
     public function postPersist(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage('insert', $args);
+            $this->sendUpdateIndexMessage(SyncProcessor::INSERT_ACTION, $args);
         }
     }
 
     public function preRemove(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage('remove', $args);
+            $this->sendUpdateIndexMessage(SyncProcessor::REMOVE_ACTION, $args);
         }
     }
 
@@ -69,19 +71,20 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
     {
         $object = $args->getObject();
 
-        $rp = new \ReflectionProperty($object, $this->config['identifier']);
+        $rp = new \ReflectionProperty($object, $this->config['model_id']);
         $rp->setAccessible(true);
         $id = $rp->getValue($object);
         $rp->setAccessible(false);
 
-        $queue = $this->context->createQueue(Commands::SYNC_INDEX_WITH_DOCTRINE_ORM_OBJECT_CHANGE);
+        $queue = $this->context->createQueue(Commands::SYNC_INDEX_WITH_OBJECT_CHANGE);
 
         $message = $this->context->createMessage(JSON::encode([
             'action' => $action,
-            'modelClass' => $this->modelClass,
+            'model_class' => $this->modelClass,
+            'model_id' => $this->config['model_id'],
             'id' => $id,
-            'indexName' => $this->config['indexName'],
-            'typeName' => $this->config['typeName'],
+            'index_name' => $this->config['index_name'],
+            'type_name' => $this->config['type_name'],
         ]));
 
         $this->context->createProducer()->send($queue, $message);

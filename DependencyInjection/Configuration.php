@@ -1,6 +1,6 @@
 <?php
 
-namespace Enqueue\Bundle\DependencyInjection;
+namespace Enqueue\ElasticaBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -16,16 +16,22 @@ class Configuration implements ConfigurationInterface
         $rootNode = $tb->root('enqueue_elastica');
         $rootNode
             ->children()
-                ->arrayNode('doctrine_queue_listeners')
-                    ->prototype('array')
-                        ->addDefaultsIfNotSet()
-                        ->children()
-                            ->booleanNode('on_insert')->defaultTrue()->end()
-                            ->booleanNode('on_update')->defaultTrue()->end()
-                            ->booleanNode('on_remove')->defaultTrue()->end()
-                            ->scalarNode('index_name')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('type_name')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('model_class')->isRequired()->cannotBeEmpty()->end()
+                ->arrayNode('doctrine')
+                    ->children()
+                        ->arrayNode('queue_listeners')
+                            ->prototype('array')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->booleanNode('insert')->defaultTrue()->end()
+                                    ->booleanNode('update')->defaultTrue()->end()
+                                    ->booleanNode('remove')->defaultTrue()->end()
+                                    ->scalarNode('connection')->defaultValue('default')->cannotBeEmpty()->end()
+                                    ->scalarNode('index_name')->isRequired()->cannotBeEmpty()->end()
+                                    ->scalarNode('type_name')->isRequired()->cannotBeEmpty()->end()
+                                    ->scalarNode('model_class')->isRequired()->cannotBeEmpty()->end()
+                                    ->scalarNode('model_id')->defaultValue('id')->cannotBeEmpty()->end()->end()
         ;
+
+        return $tb;
     }
 }

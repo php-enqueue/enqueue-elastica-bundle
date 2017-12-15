@@ -7,8 +7,8 @@ services:
       tags:
           - { name: "enqueue.client.processor" }
 
-  enqueue_elastica.sync_index_with_doctrine_orm_object_change_processor:
-      class: 'Enqueue\ElasticaBundle\Queue\SyncIndexWithDoctrineORMObjectChangeProcessor'
+  enqueue_elastica.doctrine.sync_index_with_object_change_processor:
+      class: 'Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor'
       arguments:
           - '@doctrine'
           - '@fos_elastica.persister_registry'
