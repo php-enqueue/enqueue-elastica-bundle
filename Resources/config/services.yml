@@ -1,6 +1,7 @@
 services:
   enqueue_elastica.populate_processor:
       class: 'Enqueue\ElasticaBundle\Queue\PopulateProcessor'
+      public: true
       arguments:
           - '@fos_elastica.pager_provider_registry'
           - '@fos_elastica.pager_persister_registry'
@@ -9,6 +10,7 @@ services:
 
   enqueue_elastica.doctrine.sync_index_with_object_change_processor:
       class: 'Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor'
+      public: true
       arguments:
           - '@doctrine'
           - '@fos_elastica.persister_registry'
@@ -18,6 +20,7 @@ services:
 
   enqueue_elastica.purge_populate_queue_listener:
       class: 'Enqueue\ElasticaBundle\Persister\Listener\PurgePopulateQueueListener'
+      public: true
       arguments:
           - '@enqueue.transport.context'
       tags:
@@ -25,6 +28,7 @@ services:
 
   enqueue_elastica.queue_pager_perister:
       class: 'Enqueue\ElasticaBundle\Persister\QueuePagerPersister'
+      public: true
       arguments:
           - '@enqueue.transport.context'
           - '@fos_elastica.persister_registry'

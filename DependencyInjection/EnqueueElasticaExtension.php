@@ -30,6 +30,7 @@ class EnqueueElasticaExtension extends Extension
                 );
 
                 $container->register($listenerId, SyncIndexWithObjectChangeListener::class)
+                    ->setPublic(true)
                     ->addArgument(new Reference('enqueue.transport.context'))
                     ->addArgument($listenerConfig['model_class'])
                     ->addArgument($listenerConfig)
