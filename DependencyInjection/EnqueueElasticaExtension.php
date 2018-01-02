@@ -21,6 +21,8 @@ class EnqueueElasticaExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        $container->setAlias('enqueue_elastica.context', $config['context']);
+
         if (false == empty($config['doctrine']['queue_listeners'])) {
             foreach ($config['doctrine']['queue_listeners'] as $listenerConfig) {
                 $listenerId = sprintf(
@@ -31,7 +33,7 @@ class EnqueueElasticaExtension extends Extension
 
                 $container->register($listenerId, SyncIndexWithObjectChangeListener::class)
                     ->setPublic(true)
-                    ->addArgument(new Reference('enqueue.transport.context'))
+                    ->addArgument(new Reference('enqueue_elastica.context'))
                     ->addArgument($listenerConfig['model_class'])
                     ->addArgument($listenerConfig)
                     ->addTag('doctrine.event_subscriber', ['connection' => $listenerConfig['connection']])

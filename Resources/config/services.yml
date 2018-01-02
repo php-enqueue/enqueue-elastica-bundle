@@ -22,7 +22,7 @@ services:
       class: 'Enqueue\ElasticaBundle\Persister\Listener\PurgePopulateQueueListener'
       public: true
       arguments:
-          - '@enqueue.transport.context'
+          - '@enqueue_elastica.context'
       tags:
           -  { name: 'kernel.event_subscriber' }
 
@@ -30,7 +30,7 @@ services:
       class: 'Enqueue\ElasticaBundle\Persister\QueuePagerPersister'
       public: true
       arguments:
-          - '@enqueue.transport.context'
+          - '@enqueue_elastica.context'
           - '@fos_elastica.persister_registry'
           - '@event_dispatcher'
       tags:
