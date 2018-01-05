@@ -16,7 +16,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $tb->root('enqueue_elastica');
         $rootNode
             ->children()
-                ->scalarNode('context')->isRequired()->defaultValue('enqueue.transport.context')->cannotBeEmpty()->end()
+                ->scalarNode('context')->defaultValue('enqueue.transport.context')->cannotBeEmpty()->end()
                 ->arrayNode('doctrine')
                     ->children()
                         ->arrayNode('queue_listeners')
