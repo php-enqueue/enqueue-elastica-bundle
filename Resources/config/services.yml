@@ -12,7 +12,7 @@ services:
       class: 'Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor'
       public: true
       arguments:
-          - '@doctrine'
+          - null
           - '@fos_elastica.persister_registry'
           - '@fos_elastica.indexable'
       tags:

@@ -10,7 +10,7 @@ use FOS\ElasticaBundle\Provider\IndexableInterface;
 use Interop\Queue\PsrContext;
 use Interop\Queue\PsrMessage;
 use Interop\Queue\PsrProcessor;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
 {
@@ -31,11 +31,11 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
     private $indexable;
 
     /**
-     * @var RegistryInterface
+     * @var ManagerRegistry
      */
     private $doctrine;
 
-    public function __construct(RegistryInterface $doctrine, PersisterRegistry $persisterRegistry, IndexableInterface $indexable)
+    public function __construct(ManagerRegistry $doctrine, PersisterRegistry $persisterRegistry, IndexableInterface $indexable)
     {
         $this->persisterRegistry = $persisterRegistry;
         $this->indexable = $indexable;

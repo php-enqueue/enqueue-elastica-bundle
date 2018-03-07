@@ -40,5 +40,23 @@ class EnqueueElasticaExtension extends Extension
                 ;
             }
         }
+
+        $serviceId       = 'enqueue_elastica.doctrine.sync_index_with_object_change_processor';
+        $managerRegistry = $this->getManagerRegistry($config['doctrine']['driver']);
+        $container
+            ->getDefinition($serviceId)
+            ->replaceArgument(0, new Reference($managerRegistry));
+    }
+
+    private function getManagerRegistry(string $driver): string
+    {
+        switch ($driver) {
+            case 'orm':
+                return 'doctrine';
+                break;
+            case 'mongodb':
+                return 'doctrine_mongodb';
+                break;
+        }
     }
 }
