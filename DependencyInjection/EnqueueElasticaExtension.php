@@ -51,12 +51,12 @@ class EnqueueElasticaExtension extends Extension
     private function getManagerRegistry(string $driver): string
     {
         switch ($driver) {
-            case 'orm':
-                return 'doctrine';
-                break;
             case 'mongodb':
                 return 'doctrine_mongodb';
                 break;
+            case 'orm':
+            default:
+                return 'doctrine';
         }
     }
 }

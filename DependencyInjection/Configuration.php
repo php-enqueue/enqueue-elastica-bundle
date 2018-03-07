@@ -19,7 +19,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('context')->defaultValue('enqueue.transport.context')->cannotBeEmpty()->end()
                 ->arrayNode('doctrine')
                     ->children()
-                        ->scalarNode('driver')->isRequired()->cannotBeEmpty()
+                        ->scalarNode('driver')->defaultValue('orm')->cannotBeEmpty()
                             ->validate()->ifNotInArray(['orm', 'mongodb'])->thenInvalid('Invalid driver')
                         ->end()->end()
                         ->arrayNode('queue_listeners')
