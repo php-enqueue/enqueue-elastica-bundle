@@ -23,6 +23,7 @@ class EnqueueElasticaExtension extends Extension
 
         $container->setAlias('enqueue_elastica.context', $config['context']);
 
+        $doctrineDriver = $config['doctrine']['driver'];
         if (false == empty($config['doctrine']['queue_listeners'])) {
             foreach ($config['doctrine']['queue_listeners'] as $listenerConfig) {
                 $listenerId = sprintf(
@@ -36,18 +37,23 @@ class EnqueueElasticaExtension extends Extension
                     ->addArgument(new Reference('enqueue_elastica.context'))
                     ->addArgument($listenerConfig['model_class'])
                     ->addArgument($listenerConfig)
-                    ->addTag('doctrine.event_subscriber', ['connection' => $listenerConfig['connection']])
+                    ->addTag($this->getEventSubscriber($doctrineDriver), ['connection' => $listenerConfig['connection']])
                 ;
             }
         }
 
         $serviceId       = 'enqueue_elastica.doctrine.sync_index_with_object_change_processor';
-        $managerRegistry = $this->getManagerRegistry($config['doctrine']['driver']);
+        $managerRegistry = $this->getManagerRegistry($doctrineDriver);
         $container
             ->getDefinition($serviceId)
             ->replaceArgument(0, new Reference($managerRegistry));
     }
 
+    /**
+     * @param string $driver
+     *
+     * @return string
+     */
     private function getManagerRegistry(string $driver): string
     {
         switch ($driver) {
@@ -57,6 +63,23 @@ class EnqueueElasticaExtension extends Extension
             case 'orm':
             default:
                 return 'doctrine';
+        }
+    }
+
+    /**
+     * @param string $driver
+     *
+     * @return string
+     */
+    private function getEventSubscriber(string $driver): string
+    {
+        switch ($driver) {
+            case 'mongodb':
+                return 'doctrine_mongodb.odm.event_subscriber';
+                break;
+            case 'orm':
+            default:
+                return 'doctrine.event_subscriber';
         }
     }
 }
