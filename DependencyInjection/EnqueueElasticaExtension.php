@@ -18,6 +18,10 @@ class EnqueueElasticaExtension extends Extension
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
 
+        if (!$config['enabled']) {
+            return;
+        }
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
