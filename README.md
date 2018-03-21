@@ -4,7 +4,7 @@ Improves performance of `fos:elastica:populate` command from [FOSElasticaBundle]
 The performance gain depends on how much consumers you run.
 For example 10 consumers may give you 5 to 7 times better performance.  
 
-[Read the documenation](https://github.com/php-enqueue/enqueue-dev/blob/master/docs/elastica-bundle/overview.md)
+[Read the documentation](https://github.com/php-enqueue/enqueue-dev/blob/master/docs/elastica-bundle/overview.md)
 
 ## Developed by Forma-Pro
 
