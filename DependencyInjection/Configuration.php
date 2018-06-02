@@ -34,6 +34,7 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('index_name')->isRequired()->cannotBeEmpty()->end()
                                     ->scalarNode('type_name')->isRequired()->cannotBeEmpty()->end()
                                     ->scalarNode('model_class')->isRequired()->cannotBeEmpty()->end()
+                                    ->integerNode('process_sleep')->defaultValue(0)->end()
                                     ->scalarNode('model_id')->defaultValue('id')->cannotBeEmpty()->end()->end()
         ;
 

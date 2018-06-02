@@ -70,9 +70,12 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
         $id = $data['id'];
         $index = $data['index_name'];
         $type = $data['type_name'];
+        $sleep = isset($data['process_sleep']) ? $data['process_sleep'] : 0;
 
         $repository = $this->doctrine->getManagerForClass($modelClass)->getRepository($modelClass);
         $persister = $this->persisterRegistry->getPersister($index, $type);
+
+        sleep($sleep);
 
         switch ($action) {
             case self::UPDATE_ACTION:
