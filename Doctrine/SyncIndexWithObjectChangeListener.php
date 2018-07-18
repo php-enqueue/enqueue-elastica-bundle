@@ -85,6 +85,7 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
             'id' => $id,
             'index_name' => $this->config['index_name'],
             'type_name' => $this->config['type_name'],
+            'repository_method' => $this->config['repository_method'],
         ]));
 
         $this->context->createProducer()->send($queue, $message);
