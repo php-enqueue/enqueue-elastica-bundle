@@ -59,10 +59,13 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
             return Result::reject('The message data misses id');
         }
         if (false == isset($data['index_name'])) {
-            return Result::reject('The message data misses id');
+            return Result::reject('The message data misses index_name');
         }
         if (false == isset($data['type_name'])) {
-            return Result::reject('The message data misses id');
+            return Result::reject('The message data misses type_name');
+        }
+        if (false == isset($data['repository_method'])) {
+            return Result::reject('The message data misses repository_method');
         }
 
         $action = $data['action'];
@@ -70,13 +73,14 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
         $id = $data['id'];
         $index = $data['index_name'];
         $type = $data['type_name'];
+        $repositoryMethod = $data['repository_method'];
 
         $repository = $this->doctrine->getManagerForClass($modelClass)->getRepository($modelClass);
         $persister = $this->persisterRegistry->getPersister($index, $type);
 
         switch ($action) {
             case self::UPDATE_ACTION:
-                if (false == $object = $repository->find($id)) {
+                if (false == $object = $repository->{$repositoryMethod}($id)) {
                     $persister->deleteById($id);
 
                     return Result::ack(sprintf('The object "%s" with id "%s" could not be found.', $modelClass, $id));
@@ -92,7 +96,7 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
 
                 return self::ACK;
             case self::INSERT_ACTION:
-                if (false == $object = $repository->find($id)) {
+                if (false == $object = $repository->{$repositoryMethod}($id)) {
                     $persister->deleteById($id);
 
                     return Result::ack(sprintf('The object "%s" with id "%s" could not be found.', $modelClass, $id));
