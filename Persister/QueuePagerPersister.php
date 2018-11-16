@@ -111,7 +111,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
                 $data = JSON::decode($message->getBody());
 
                 $errorMessage = $message->getProperty('fos-populate-error', false);
-                $objectsCount = $message->getProperty('fos-populate-objects-count', false);
+                $objectsCount = (int) $message->getProperty('fos-populate-objects-count', false);
 
                 $pager->setCurrentPage($data['page']);
 
