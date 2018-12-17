@@ -2,10 +2,14 @@
 
 namespace Enqueue\ElasticaBundle\DependencyInjection;
 
+use Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor;
 use Enqueue\ElasticaBundle\Doctrine\SyncIndexWithObjectChangeListener;
-use Symfony\Component\Config\FileLocator;
+use Enqueue\ElasticaBundle\Persister\Listener\PurgePopulateQueueListener;
+use Enqueue\ElasticaBundle\Persister\QueuePagerPersister;
+use Enqueue\ElasticaBundle\Queue\PopulateProcessor;
+use Enqueue\Symfony\DependencyInjection\TransportFactory;
+use Enqueue\Symfony\DiUtils;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -22,13 +26,44 @@ class EnqueueElasticaExtension extends Extension
             return;
         }
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
+        $transport = $container->getParameterBag()->resolveValue($config['transport']);
 
-        $container->setAlias('enqueue_elastica.context', $config['context']);
+        $diUtils = new DiUtils(TransportFactory::MODULE, $transport);
+        $container->setAlias('enqueue_elastica.context', $diUtils->format('context'));
 
-        $doctrineDriver = $config['doctrine']['driver'];
+        $container->register('enqueue_elastica.populate_processor', PopulateProcessor::class)
+            ->addArgument(new Reference('fos_elastica.pager_provider_registry'))
+            ->addArgument(new Reference('fos_elastica.pager_persister_registry'))
+
+            ->addTag('enqueue.command_subscriber', ['client' => $transport])
+            ->addTag('enqueue.transport.processor', ['transport' => $transport])
+        ;
+
+        $container->register('enqueue_elastica.purge_populate_queue_listener', PurgePopulateQueueListener::class)
+            ->addArgument(new Reference('enqueue_elastica.context'))
+
+            ->addTag('kernel.event_subscriber')
+        ;
+
+        $container->register('enqueue_elastica.queue_pager_perister', QueuePagerPersister::class)
+            ->addArgument(new Reference('enqueue_elastica.context'))
+            ->addArgument(new Reference('fos_elastica.persister_registry'))
+            ->addArgument(new Reference('event_dispatcher'))
+
+            ->addTag('fos_elastica.pager_persister', ['persisterName' => 'queue'])
+        ;
+
         if (false == empty($config['doctrine']['queue_listeners'])) {
+            $doctrineDriver = $config['doctrine']['driver'];
+
+            $container->register('enqueue_elastica.doctrine.sync_index_with_object_change_processor', SyncIndexWithObjectChangeProcessor::class)
+                ->addArgument(new Reference($this->getManagerRegistry($doctrineDriver)))
+                ->addArgument(new Reference('fos_elastica.persister_registry'))
+                ->addArgument(new Reference('fos_elastica.indexable'))
+                ->addTag('enqueue.command_subscriber', ['client' => $transport])
+                ->addTag('enqueue.transport.processor', ['transport' => $transport])
+            ;
+
             foreach ($config['doctrine']['queue_listeners'] as $listenerConfig) {
                 $listenerId = sprintf(
                     'enqueue_elastica.doctrine_queue_listener.%s.%s',
@@ -45,19 +80,8 @@ class EnqueueElasticaExtension extends Extension
                 ;
             }
         }
-
-        $serviceId       = 'enqueue_elastica.doctrine.sync_index_with_object_change_processor';
-        $managerRegistry = $this->getManagerRegistry($doctrineDriver);
-        $container
-            ->getDefinition($serviceId)
-            ->replaceArgument(0, new Reference($managerRegistry));
     }
 
-    /**
-     * @param string $driver
-     *
-     * @return string
-     */
     private function getManagerRegistry(string $driver): string
     {
         switch ($driver) {
@@ -70,11 +94,6 @@ class EnqueueElasticaExtension extends Extension
         }
     }
 
-    /**
-     * @param string $driver
-     *
-     * @return string
-     */
     private function getEventSubscriber(string $driver): string
     {
         switch ($driver) {

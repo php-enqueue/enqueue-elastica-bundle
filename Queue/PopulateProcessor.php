@@ -7,21 +7,15 @@ use Enqueue\Consumption\Result;
 use FOS\ElasticaBundle\Persister\InPlacePagerPersister;
 use FOS\ElasticaBundle\Persister\PagerPersisterRegistry;
 use FOS\ElasticaBundle\Provider\PagerProviderRegistry;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Context;
+use Interop\Queue\Message;
+use Interop\Queue\Processor;
 use Enqueue\Util\JSON;
 
-final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
+final class PopulateProcessor implements Processor, CommandSubscriberInterface, QueueSubscriberInterface
 {
-    /**
-     * @var PagerProviderRegistry
-     */
     private $pagerProviderRegistry;
 
-    /**
-     * @var PagerPersisterRegistry
-     */
     private $pagerPersisterRegistry;
 
     public function __construct(
@@ -32,10 +26,7 @@ final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterfac
         $this->pagerProviderRegistry = $pagerProviderRegistry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function process(PsrMessage $message, PsrContext $context)
+    public function process(Message $message, Context $context): Result
     {
         if ($message->isRedelivered()) {
             $replyMessage = $this->createReplyMessage($context, $message, 0,'The message was redelivered. Chances are that something has gone wrong.');
@@ -81,14 +72,7 @@ final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterfac
         }
     }
 
-    /**
-     * @param PsrContext $context
-     * @param PsrMessage $message
-     * @param int $objectsCount
-     * @param \Throwable $e
-     * @return PsrMessage
-     */
-    private function createExceptionReplyMessage(PsrContext $context, PsrMessage $message, $objectsCount, \Throwable $e)
+    private function createExceptionReplyMessage(Context $context, Message $message, int $objectsCount, \Throwable $e): Message
     {
         $errorMessage = sprintf(
             '<error>The queue processor has failed to process the message with exception: </error><comment>%s: %s in file %s at line %s.</comment>',
@@ -101,15 +85,7 @@ final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterfac
         return $this->createReplyMessage($context, $message, $errorMessage);
     }
 
-    /**
-     * @param PsrContext $context
-     * @param PsrMessage $message
-     * @param int $objectsCount
-     * @param string|null $error
-     *
-     * @return PsrMessage
-     */
-    private function createReplyMessage(PsrContext $context, PsrMessage $message, $objectsCount, $error = null)
+    private function createReplyMessage(Context $context, Message $message, int $objectsCount, string $error = null): Message
     {
         $replyMessage = $context->createMessage($message->getBody(), $message->getProperties(), $message->getHeaders());
         $replyMessage->setProperty('fos-populate-objects-count', $objectsCount);
@@ -121,23 +97,17 @@ final class PopulateProcessor implements PsrProcessor, CommandSubscriberInterfac
         return $replyMessage;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedCommand()
+    public static function getSubscribedCommand(): array
     {
         return [
-            'processorName' => Commands::POPULATE,
-            'queueName' => Commands::POPULATE,
-            'queueNameHardcoded' => true,
+            'command' => Commands::POPULATE,
+            'queue' => Commands::POPULATE,
+            'prefix_queue' => false,
             'exclusive' => true,
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedQueues()
+    public static function getSubscribedQueues(): array
     {
         return [Commands::POPULATE];
     }

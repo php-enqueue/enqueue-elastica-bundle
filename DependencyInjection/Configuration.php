@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->defaultValue(true)->end()
-                ->scalarNode('context')->defaultValue('enqueue.transport.context')->cannotBeEmpty()->end()
+                ->scalarNode('transport')->defaultValue('%enqueue.default_transport%')->cannotBeEmpty()->isRequired()->end()
                 ->arrayNode('doctrine')
                     ->children()
                         ->scalarNode('driver')->defaultValue('orm')->cannotBeEmpty()

@@ -5,14 +5,11 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Enqueue\ElasticaBundle\Doctrine\Queue\Commands;
 use Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor as SyncProcessor;
 use Enqueue\Util\JSON;
-use Interop\Queue\PsrContext;
+use Interop\Queue\Context;
 use Doctrine\Common\EventSubscriber;
 
 final class SyncIndexWithObjectChangeListener implements EventSubscriber
 {
-    /**
-     * @var PsrContext
-     */
     private $context;
 
     /**
@@ -25,7 +22,7 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
      */
     private $config;
 
-    public function __construct(PsrContext $context, $modelClass, array $config)
+    public function __construct(Context $context, $modelClass, array $config)
     {
         $this->context = $context;
         $this->modelClass = $modelClass;

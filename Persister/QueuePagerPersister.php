@@ -10,16 +10,13 @@ use FOS\ElasticaBundle\Persister\Event\PrePersistEvent;
 use FOS\ElasticaBundle\Persister\PagerPersisterInterface;
 use FOS\ElasticaBundle\Persister\PersisterRegistry;
 use FOS\ElasticaBundle\Provider\PagerInterface;
-use Interop\Queue\PsrContext;
+use Interop\Queue\Context;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class QueuePagerPersister implements PagerPersisterInterface
 {
     const NAME = 'queue';
 
-    /**
-     * @var PsrContext
-     */
     private $context;
 
     /**
@@ -32,7 +29,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
      */
     private $dispatcher;
 
-    public function __construct(PsrContext $context, PersisterRegistry $registry, EventDispatcherInterface $dispatcher)
+    public function __construct(Context $context, PersisterRegistry $registry, EventDispatcherInterface $dispatcher)
     {
         $this->context = $context;
         $this->dispatcher = $dispatcher;

@@ -2,21 +2,15 @@
 namespace Enqueue\ElasticaBundle\Persister\Listener;
 
 use FOS\ElasticaBundle\Persister\Event\PrePersistEvent;
-use Interop\Queue\PsrContext;
+use Interop\Queue\Context;
 use FOS\ElasticaBundle\Persister\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PurgePopulateQueueListener implements EventSubscriberInterface
 {
-    /**
-     * @var PsrContext
-     */
     private $context;
 
-    /**
-     * @param PsrContext $context
-     */
-    public function __construct(PsrContext $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }

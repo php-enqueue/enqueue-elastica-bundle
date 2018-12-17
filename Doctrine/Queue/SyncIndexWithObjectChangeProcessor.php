@@ -7,12 +7,12 @@ use Enqueue\Consumption\Result;
 use Enqueue\Util\JSON;
 use FOS\ElasticaBundle\Persister\PersisterRegistry;
 use FOS\ElasticaBundle\Provider\IndexableInterface;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Context;
+use Interop\Queue\Message;
+use Interop\Queue\Processor;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
-final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandSubscriberInterface, QueueSubscriberInterface
+final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubscriberInterface, QueueSubscriberInterface
 {
     const INSERT_ACTION = 'insert';
 
@@ -20,19 +20,10 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
 
     const REMOVE_ACTION = 'remove';
 
-    /**
-     * @var PersisterRegistry
-     */
     private $persisterRegistry;
 
-    /**
-     * @var IndexableInterface
-     */
     private $indexable;
 
-    /**
-     * @var ManagerRegistry
-     */
     private $doctrine;
 
     public function __construct(ManagerRegistry $doctrine, PersisterRegistry $persisterRegistry, IndexableInterface $indexable)
@@ -42,10 +33,7 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
         $this->doctrine = $doctrine;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function process(PsrMessage $message, PsrContext $context)
+    public function process(Message $message, Context $context): Result
     {
         $data = JSON::decode($message->getBody());
 
@@ -94,7 +82,7 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
                     }
                 }
 
-                return self::ACK;
+                return Result::ack();
             case self::INSERT_ACTION:
                 if (false == $object = $repository->{$repositoryMethod}($id)) {
                     $persister->deleteById($id);
@@ -106,33 +94,27 @@ final class SyncIndexWithObjectChangeProcessor implements PsrProcessor, CommandS
                     $persister->insertOne($object);
                 }
 
-                return self::ACK;
+                return Result::ack();
             case self::REMOVE_ACTION:
                 $persister->deleteById($id);
 
-                return self::ACK;
+                return Result::ack();
             default:
                 return Result::reject(sprintf('The action "%s" is not supported', $action));
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedCommand()
+    public static function getSubscribedCommand(): array
     {
         return [
-            'processorName' => Commands::SYNC_INDEX_WITH_OBJECT_CHANGE,
-            'queueName' => Commands::SYNC_INDEX_WITH_OBJECT_CHANGE,
-            'queueNameHardcoded' => true,
+            'command' => Commands::SYNC_INDEX_WITH_OBJECT_CHANGE,
+            'queue' => Commands::SYNC_INDEX_WITH_OBJECT_CHANGE,
+            'prefix_queue' => false,
             'exclusive' => true,
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedQueues()
+    public static function getSubscribedQueues(): array
     {
         return [Commands::SYNC_INDEX_WITH_OBJECT_CHANGE];
     }

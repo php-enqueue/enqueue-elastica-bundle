@@ -5,10 +5,10 @@
     "keywords": ["elasticsearch", "elastica", "fos", "performance"],
     "license": "MIT",
     "require": {
-        "php": "^7",
-        "symfony/framework-bundle": "^3|^4",
-        "friendsofsymfony/elastica-bundle": "^4.1|^5",
-        "enqueue/enqueue-bundle": "^0.8"
+        "php": "^7.1",
+        "symfony/framework-bundle": "^3.4|^4",
+        "friendsofsymfony/elastica-bundle": "^5",
+        "enqueue/enqueue-bundle": "^0.9"
     },
     "autoload": {
         "psr-4": { "Enqueue\\ElasticaBundle\\": "" }
@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
-            "dev-master": "0.8.x-dev"
+            "dev-master": "0.9.x-dev"
         }
     }
 }
