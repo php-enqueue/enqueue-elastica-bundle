@@ -51,6 +51,7 @@ class EnqueueElasticaExtension extends Extension
             ->addArgument(new Reference('event_dispatcher'))
 
             ->addTag('fos_elastica.pager_persister', ['persisterName' => 'queue'])
+            ->setPublic(true)
         ;
 
         if (false == empty($config['doctrine']['queue_listeners'])) {
