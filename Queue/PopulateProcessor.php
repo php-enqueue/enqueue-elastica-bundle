@@ -82,7 +82,7 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
             $e->getLine()
         );
 
-        return $this->createReplyMessage($context, $message, $errorMessage);
+        return $this->createReplyMessage($context, $message, $objectsCount, $errorMessage);
     }
 
     private function createReplyMessage(Context $context, Message $message, int $objectsCount, string $error = null): Message
