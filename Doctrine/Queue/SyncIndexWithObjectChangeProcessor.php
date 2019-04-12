@@ -81,6 +81,8 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
                         $persister->deleteOne($object);
                     }
                 }
+                
+                $repository->clear();
 
                 return Result::ack();
             case self::INSERT_ACTION:
@@ -93,6 +95,8 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
                 if ($persister->handlesObject($object) && $this->indexable->isObjectIndexable($index, $type, $object)) {
                     $persister->insertOne($object);
                 }
+                
+                $repository->clear();
 
                 return Result::ack();
             case self::REMOVE_ACTION:
