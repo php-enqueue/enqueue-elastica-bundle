@@ -58,7 +58,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
         $objectPersister = $this->registry->getPersister($options['indexName'], $options['typeName']);
 
         $event = new PrePersistEvent($pager, $objectPersister, $options);
-        $this->dispatcher->dispatch(Events::PRE_PERSIST, $event);
+        $this->dispatcher->dispatch($event, Events::PRE_PERSIST);
         $pager = $event->getPager();
         $options = $event->getOptions();
 
@@ -119,7 +119,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
                     $errorMessage,
                     $data['options']
                 );
-                $this->dispatcher->dispatch(Events::POST_ASYNC_INSERT_OBJECTS, $event);
+                $this->dispatcher->dispatch($event, Events::POST_ASYNC_INSERT_OBJECTS);
             }
 
             if (microtime(true) > $limitTime) {
@@ -128,6 +128,6 @@ final class QueuePagerPersister implements PagerPersisterInterface
         }
 
         $event = new PostPersistEvent($pager, $objectPersister, $options);
-        $this->dispatcher->dispatch(Events::POST_PERSIST, $event);
+        $this->dispatcher->dispatch($event, Events::POST_PERSIST);
     }
 }
