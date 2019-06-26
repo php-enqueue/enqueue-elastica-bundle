@@ -93,6 +93,9 @@ final class QueuePagerPersister implements PagerPersisterInterface
             ]));
             $message->setReplyTo($replyQueue->getQueueName());
 
+            // Because of https://github.com/php-enqueue/enqueue-dev/issues/907
+            \usleep(10);
+
             $producer->send($queue, $message);
 
             $page++;
