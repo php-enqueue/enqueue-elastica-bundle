@@ -2,6 +2,7 @@
 namespace Enqueue\ElasticaBundle\Doctrine;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Enqueue\ElasticaBundle\Doctrine\Queue\Commands;
 use Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor as SyncProcessor;
 use Enqueue\Util\JSON;
@@ -20,6 +21,11 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
     /**
      * @var array
      */
+    private $scheduledForUpdateIndex = [];
+
+    /**
+     * @var array
+     */
     private $config;
 
     public function __construct(Context $context, $modelClass, array $config)
@@ -31,23 +37,33 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
 
     public function postUpdate(LifecycleEventArgs $args)
     {
-
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage(SyncProcessor::UPDATE_ACTION, $args);
+            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::UPDATE_ACTION, 'args' => $args];
         }
     }
 
     public function postPersist(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage(SyncProcessor::INSERT_ACTION, $args);
+            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::INSERT_ACTION, 'args' => $args];
         }
     }
 
     public function preRemove(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->sendUpdateIndexMessage(SyncProcessor::REMOVE_ACTION, $args);
+            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::REMOVE_ACTION, 'args' => $args];
+        }
+    }
+
+    public function postFlush(PostFlushEventArgs $event)
+    {
+        if (count($this->scheduledForUpdateIndex)) {
+            foreach ($this->scheduledForUpdateIndex as $updateIndex) {
+                $this->sendUpdateIndexMessage($updateIndex['action'], $updateIndex['args']);
+            }
+
+            $this->scheduledForUpdateIndex = [];
         }
     }
 
@@ -57,6 +73,7 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
             'postPersist',
             'postUpdate',
             'preRemove',
+            'postFlush'
         ];
     }
 
