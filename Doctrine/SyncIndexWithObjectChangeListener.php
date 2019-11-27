@@ -38,21 +38,30 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
     public function postUpdate(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::UPDATE_ACTION, 'args' => $args];
+            $this->scheduledForUpdateIndex[] = [
+                'action' => SyncProcessor::UPDATE_ACTION,
+                'id'     => $this->extractId($args->getObject())
+            ];
         }
     }
 
     public function postPersist(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::INSERT_ACTION, 'args' => $args];
+            $this->scheduledForUpdateIndex[] = [
+                'action' => SyncProcessor::INSERT_ACTION,
+                'id'     => $this->extractId($args->getObject())
+            ];
         }
     }
 
     public function preRemove(LifecycleEventArgs $args)
     {
         if ($args->getObject() instanceof $this->modelClass) {
-            $this->scheduledForUpdateIndex[] = ['action' => SyncProcessor::REMOVE_ACTION, 'args' => $args];
+            $this->scheduledForUpdateIndex[] = [
+                'action' => SyncProcessor::REMOVE_ACTION,
+                'id'     => $this->extractId($args->getObject())
+            ];
         }
     }
 
@@ -60,7 +69,7 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
     {
         if (count($this->scheduledForUpdateIndex)) {
             foreach ($this->scheduledForUpdateIndex as $updateIndex) {
-                $this->sendUpdateIndexMessage($updateIndex['action'], $updateIndex['args']);
+                $this->sendUpdateIndexMessage($updateIndex['action'], $updateIndex['id']);
             }
 
             $this->scheduledForUpdateIndex = [];
@@ -79,17 +88,10 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
 
     /**
      * @param string $action
-     * @param LifecycleEventArgs $args
+     * @param $id
      */
-    private function sendUpdateIndexMessage($action, LifecycleEventArgs $args)
+    private function sendUpdateIndexMessage($action, $id)
     {
-        $object = $args->getObject();
-
-        $rp = (new \ReflectionClass($this->modelClass))->getProperty($this->config['model_id']);
-        $rp->setAccessible(true);
-        $id = $rp->getValue($object);
-        $rp->setAccessible(false);
-        
         $queue = $this->context->createQueue(Commands::SYNC_INDEX_WITH_OBJECT_CHANGE);
 
         $message = $this->context->createMessage(JSON::encode([
@@ -103,5 +105,19 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
         ]));
 
         $this->context->createProducer()->send($queue, $message);
+    }
+
+    /**
+     * @param $object
+     * @return mixed
+     */
+    private function extractId($object)
+    {
+        $rp = new \ReflectionProperty($object, $this->config['model_id']);
+        $rp->setAccessible(true);
+        $id = $rp->getValue($object);
+        $rp->setAccessible(false);
+
+        return $id;
     }
 }
