@@ -12,8 +12,14 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
+        
         $tb = new TreeBuilder('enqueue_elastica');
-        $rootNode = $tb->getRootNode();
+        if (method_exists($tb, 'getRootNode')) {
+            $rootNode = $tb->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $rootNode = $tb->root('enqueue_elastica');
+        }
         $rootNode
             ->children()
                 ->booleanNode('enabled')->defaultValue(true)->end()
