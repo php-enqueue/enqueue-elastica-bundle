@@ -12,8 +12,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $tb = new TreeBuilder();
-        $rootNode = $tb->root('enqueue_elastica');
+        $tb = new TreeBuilder('enqueue_elastica');
+        $rootNode = $tb->getRootNode();
         $rootNode
             ->children()
                 ->booleanNode('enabled')->defaultValue(true)->end()
