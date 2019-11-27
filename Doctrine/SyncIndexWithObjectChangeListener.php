@@ -85,11 +85,11 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
     {
         $object = $args->getObject();
 
-        $rp = new \ReflectionProperty($object, $this->config['model_id']);
+        $rp = (new \ReflectionClass($this->modelClass))->getProperty($this->config['model_id']);
         $rp->setAccessible(true);
         $id = $rp->getValue($object);
         $rp->setAccessible(false);
-
+        
         $queue = $this->context->createQueue(Commands::SYNC_INDEX_WITH_OBJECT_CHANGE);
 
         $message = $this->context->createMessage(JSON::encode([
