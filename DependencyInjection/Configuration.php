@@ -12,7 +12,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        
+
         $tb = new TreeBuilder('enqueue_elastica');
         if (method_exists($tb, 'getRootNode')) {
             $rootNode = $tb->getRootNode();
@@ -24,6 +24,9 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enabled')->defaultValue(true)->end()
                 ->scalarNode('transport')->defaultValue('%enqueue.default_transport%')->cannotBeEmpty()->isRequired()->end()
+                ->arrayNode('processor')
+                    ->children()
+                        ->booleanNode('prefix_queue')->defaultFalse()->end()
                 ->arrayNode('doctrine')
                     ->children()
                         ->scalarNode('driver')->defaultValue('orm')->cannotBeEmpty()
