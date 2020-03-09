@@ -34,7 +34,6 @@ class EnqueueElasticaExtension extends Extension
         $container->register('enqueue_elastica.populate_processor', PopulateProcessor::class)
             ->addArgument(new Reference('fos_elastica.pager_provider_registry'))
             ->addArgument(new Reference('fos_elastica.pager_persister_registry'))
-            ->addArgument($config['processor'])
 
             ->addTag('enqueue.command_subscriber', ['client' => $transport])
             ->addTag('enqueue.transport.processor', ['transport' => $transport])

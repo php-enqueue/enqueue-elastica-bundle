@@ -18,17 +18,12 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
 
     private $pagerPersisterRegistry;
 
-    /** @var array */
-    private static $config = [];
-
     public function __construct(
         PagerProviderRegistry $pagerProviderRegistry,
-        PagerPersisterRegistry $pagerPersisterRegistry,
-        array $config
+        PagerPersisterRegistry $pagerPersisterRegistry
     ) {
         $this->pagerPersisterRegistry = $pagerPersisterRegistry;
         $this->pagerProviderRegistry = $pagerProviderRegistry;
-        self::$config = $config;
     }
 
     public function process(Message $message, Context $context): Result
@@ -107,7 +102,7 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
         return [
             'command' => Commands::POPULATE,
             'queue' => Commands::POPULATE,
-            'prefix_queue' => self::$config['prefix_queue'],
+            'prefix_queue' => true,
             'exclusive' => true,
         ];
     }
