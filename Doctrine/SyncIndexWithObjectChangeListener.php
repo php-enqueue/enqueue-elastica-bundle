@@ -104,7 +104,7 @@ final class SyncIndexWithObjectChangeListener implements EventSubscriber
             'repository_method' => $this->config['repository_method'],
         ]));
 
-        $this->context->createProducer()->send($queue, $message);
+        $this->context->createProducer()->setDeliveryDelay($this->config['delivery_delay'])->send($queue, $message);
     }
 
     /**

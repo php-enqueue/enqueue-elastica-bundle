@@ -42,6 +42,7 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('model_class')->isRequired()->cannotBeEmpty()->end()
                                     ->scalarNode('model_id')->defaultValue('id')->cannotBeEmpty()->end()
                                     ->scalarNode('repository_method')->defaultValue('find')->cannotBeEmpty()->end()
+                                    ->scalarNode('delivery_delay')->defaultNull()->end()
                     ->end()
         ;
 
