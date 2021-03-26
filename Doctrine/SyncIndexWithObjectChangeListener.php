@@ -1,7 +1,7 @@
 <?php
 namespace Enqueue\ElasticaBundle\Doctrine;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Enqueue\ElasticaBundle\Doctrine\Queue\Commands;
 use Enqueue\ElasticaBundle\Doctrine\Queue\SyncIndexWithObjectChangeProcessor as SyncProcessor;
