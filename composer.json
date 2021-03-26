@@ -8,7 +8,8 @@
         "php": "^7.1",
         "symfony/framework-bundle": "^4.0|^5.0",
         "friendsofsymfony/elastica-bundle": "^5.0|^6.0",
-        "enqueue/enqueue-bundle": "^0.10"
+        "enqueue/enqueue-bundle": "^0.10",
+        "doctrine/common": "^3.0.3"
     },
     "autoload": {
         "psr-4": { "Enqueue\\ElasticaBundle\\": "" }
