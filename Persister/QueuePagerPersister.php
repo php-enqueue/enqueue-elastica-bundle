@@ -3,7 +3,6 @@ namespace Enqueue\ElasticaBundle\Persister;
 
 use Enqueue\ElasticaBundle\Queue\Commands;
 use Enqueue\Util\JSON;
-use FOS\ElasticaBundle\Persister\Event\Events;
 use FOS\ElasticaBundle\Persister\Event\PostAsyncInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PostPersistEvent;
 use FOS\ElasticaBundle\Persister\Event\PrePersistEvent;
@@ -58,7 +57,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
         $objectPersister = $this->registry->getPersister($options['indexName'], $options['typeName']);
 
         $event = new PrePersistEvent($pager, $objectPersister, $options);
-        $this->dispatcher->dispatch($event, Events::PRE_PERSIST);
+        $this->dispatcher->dispatch($event);
         $pager = $event->getPager();
         $options = $event->getOptions();
 
@@ -122,7 +121,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
                     $errorMessage,
                     $data['options']
                 );
-                $this->dispatcher->dispatch($event, Events::POST_ASYNC_INSERT_OBJECTS);
+                $this->dispatcher->dispatch($event);
             }
 
             if (microtime(true) > $limitTime) {
@@ -131,6 +130,6 @@ final class QueuePagerPersister implements PagerPersisterInterface
         }
 
         $event = new PostPersistEvent($pager, $objectPersister, $options);
-        $this->dispatcher->dispatch($event, Events::POST_PERSIST);
+        $this->dispatcher->dispatch($event);
     }
 }

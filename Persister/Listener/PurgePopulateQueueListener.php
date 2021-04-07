@@ -3,7 +3,6 @@ namespace Enqueue\ElasticaBundle\Persister\Listener;
 
 use FOS\ElasticaBundle\Persister\Event\PrePersistEvent;
 use Interop\Queue\Context;
-use FOS\ElasticaBundle\Persister\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PurgePopulateQueueListener implements EventSubscriberInterface
@@ -44,7 +43,7 @@ class PurgePopulateQueueListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Events::PRE_PERSIST => 'purgePopulateQueue',
+            PrePersistEvent::class => 'purgePopulateQueue',
         ];
     }
 }
