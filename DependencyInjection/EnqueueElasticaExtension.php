@@ -45,7 +45,7 @@ class EnqueueElasticaExtension extends Extension
             ->addTag('kernel.event_subscriber')
         ;
 
-        $container->register('enqueue_elastica.queue_pager_perister', QueuePagerPersister::class)
+        $container->register('enqueue_elastica.queue_pager_persister', QueuePagerPersister::class)
             ->addArgument(new Reference('enqueue_elastica.context'))
             ->addArgument(new Reference('fos_elastica.persister_registry'))
             ->addArgument(new Reference('event_dispatcher'))
