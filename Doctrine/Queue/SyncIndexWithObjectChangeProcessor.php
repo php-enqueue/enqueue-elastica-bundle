@@ -49,9 +49,6 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
         if (false == isset($data['index_name'])) {
             return Result::reject('The message data misses index_name');
         }
-        if (false == isset($data['type_name'])) {
-            return Result::reject('The message data misses type_name');
-        }
         if (false == isset($data['repository_method'])) {
             return Result::reject('The message data misses repository_method');
         }
@@ -60,11 +57,10 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
         $modelClass = $data['model_class'];
         $id = $data['id'];
         $index = $data['index_name'];
-        $type = $data['type_name'];
         $repositoryMethod = $data['repository_method'];
 
         $repository = $this->doctrine->getManagerForClass($modelClass)->getRepository($modelClass);
-        $persister = $this->persisterRegistry->getPersister($index, $type);
+        $persister = $this->persisterRegistry->getPersister($index);
 
         switch ($action) {
             case self::UPDATE_ACTION:
@@ -75,7 +71,7 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
                 }
 
                 if ($persister->handlesObject($object)) {
-                    if ($this->indexable->isObjectIndexable($index, $type, $object)) {
+                    if ($this->indexable->isObjectIndexable($index, $object)) {
                         $persister->replaceOne($object);
                     } else {
                         $persister->deleteOne($object);
@@ -90,7 +86,7 @@ final class SyncIndexWithObjectChangeProcessor implements Processor, CommandSubs
                     return Result::ack(sprintf('The object "%s" with id "%s" could not be found.', $modelClass, $id));
                 }
 
-                if ($persister->handlesObject($object) && $this->indexable->isObjectIndexable($index, $type, $object)) {
+                if ($persister->handlesObject($object) && $this->indexable->isObjectIndexable($index, $object)) {
                     $persister->insertOne($object);
                 }
 

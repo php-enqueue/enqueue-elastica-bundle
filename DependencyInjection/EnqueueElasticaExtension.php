@@ -67,9 +67,8 @@ class EnqueueElasticaExtension extends Extension
 
             foreach ($config['doctrine']['queue_listeners'] as $listenerConfig) {
                 $listenerId = sprintf(
-                    'enqueue_elastica.doctrine_queue_listener.%s.%s',
-                    $listenerConfig['index_name'],
-                    $listenerConfig['type_name']
+                    'enqueue_elastica.doctrine_queue_listener.%s',
+                    $listenerConfig['index_name']
                 );
 
                 $container->register($listenerId, SyncIndexWithObjectChangeListener::class)

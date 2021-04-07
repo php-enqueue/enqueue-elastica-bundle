@@ -54,7 +54,7 @@ final class QueuePagerPersister implements PagerPersisterInterface
 
         $pager->setCurrentPage($options['first_page']);
 
-        $objectPersister = $this->registry->getPersister($options['indexName'], $options['typeName']);
+        $objectPersister = $this->registry->getPersister($options['indexName']);
 
         $event = new PrePersistEvent($pager, $objectPersister, $options);
         $this->dispatcher->dispatch($event);
