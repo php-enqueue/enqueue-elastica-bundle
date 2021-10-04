@@ -48,15 +48,12 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
             if (!isset($data['options']['indexName'])) {
                 return Result::reply($this->createReplyMessage($context, $message, 0,'The message is invalid. Missing indexName option.'));
             }
-            if (!isset($data['options']['typeName'])) {
-                return Result::reply($this->createReplyMessage($context, $message, 0,'The message is invalid. Missing typeName option.'));
-            }
 
             $options = $data['options'];
             $options['first_page'] = $data['page'];
             $options['last_page'] = $data['page'];
 
-            $provider = $this->pagerProviderRegistry->getProvider($options['indexName'], $options['typeName']);
+            $provider = $this->pagerProviderRegistry->getProvider($options['indexName']);
             $pager = $provider->provide($options);
             $pager->setMaxPerPage($options['max_per_page']);
             $pager->setCurrentPage($options['first_page']);
