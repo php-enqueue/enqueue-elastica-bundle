@@ -1,5 +1,5 @@
 {
-    "name": "indjeto/elastica-bundle",
+    "name": "enqueue/elastica-bundle",
     "type": "symfony-bundle",
     "description": "The bundle adds extra features to FOSElasticaBundle bundle",
     "keywords": ["elasticsearch", "elastica", "fos", "performance"],
@@ -21,11 +21,5 @@
         "branch-alias": {
             "dev-master": "0.10.x-dev"
         }
-    },
-    "repositories": [
-        {
-            "url": "https://github.com/indjeto/enqueue-elastica-bundle.git",
-            "type": "git"
-        }
-    ]
+    }
 }
