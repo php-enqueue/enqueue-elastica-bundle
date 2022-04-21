@@ -12,7 +12,6 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        
         $tb = new TreeBuilder('enqueue_elastica');
         if (method_exists($tb, 'getRootNode')) {
             $rootNode = $tb->getRootNode();

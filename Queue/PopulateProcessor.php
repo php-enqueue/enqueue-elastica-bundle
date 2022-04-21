@@ -99,7 +99,7 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
         return [
             'command' => Commands::POPULATE,
             'queue' => Commands::POPULATE,
-            'prefix_queue' => false,
+            'prefix_queue' => true,
             'exclusive' => true,
         ];
     }
