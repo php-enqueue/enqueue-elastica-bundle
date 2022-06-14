@@ -5,7 +5,7 @@
     "keywords": ["elasticsearch", "elastica", "fos", "performance"],
     "license": "MIT",
     "require": {
-        "php": "^7.1",
+        "php": "^7.1|^8.0",
         "symfony/framework-bundle": "^4.0|^5.0",
         "friendsofsymfony/elastica-bundle": "^6.0",
         "enqueue/enqueue-bundle": "^0.10"
