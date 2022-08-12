@@ -7,7 +7,7 @@
     "require": {
         "php": "^7.1",
         "symfony/framework-bundle": "^3.4|^4",
-        "friendsofsymfony/elastica-bundle": "^5",
+        "friendsofsymfony/elastica-bundle": "^friendsofsymfony/elastica-bundle",
         "enqueue/enqueue-bundle": "^0.9"
     },
     "autoload": {
