@@ -3,6 +3,7 @@ namespace Enqueue\ElasticaBundle\Persister;
 
 use Enqueue\ElasticaBundle\Queue\Commands;
 use Enqueue\Util\JSON;
+use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Persister\Event\PostAsyncInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PostPersistEvent;
 use FOS\ElasticaBundle\Persister\Event\PrePersistEvent;
@@ -28,11 +29,21 @@ final class QueuePagerPersister implements PagerPersisterInterface
      */
     private $dispatcher;
 
-    public function __construct(Context $context, PersisterRegistry $registry, EventDispatcherInterface $dispatcher)
-    {
+    /**
+     * @var IndexManager
+     */
+    private $indexManager;
+
+    public function __construct(
+        Context $context,
+        PersisterRegistry $registry,
+        EventDispatcherInterface $dispatcher,
+        IndexManager $indexManager
+    ) {
         $this->context = $context;
         $this->dispatcher = $dispatcher;
         $this->registry = $registry;
+        $this->indexManager = $indexManager;
     }
 
     /**
@@ -42,15 +53,21 @@ final class QueuePagerPersister implements PagerPersisterInterface
     {
         $pager->setMaxPerPage(empty($options['max_per_page']) ? 100 : $options['max_per_page']);
 
-        $options = array_replace([
+        $defaultOptions = [
             'max_per_page' => $pager->getMaxPerPage(),
             'first_page' => $pager->getCurrentPage(),
             'last_page' => $pager->getNbPages(),
             'populate_queue' => Commands::POPULATE,
             'populate_reply_queue' => null,
             'reply_receive_timeout' => 5000, // ms
-            'limit_overall_reply_time' => 180, // sec
-        ], $options);
+            'limit_overall_reply_time' => 180 // sec
+        ];
+        $index = $this->indexManager->getIndex($options['indexName']);
+        if ($index->getName() !== $index->getOriginalName()) {
+            $defaultOptions['realIndexName'] = $index->getName();
+        }
+
+        $options = array_replace($defaultOptions, $options);
 
         $pager->setCurrentPage($options['first_page']);
 

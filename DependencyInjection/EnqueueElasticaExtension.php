@@ -34,6 +34,7 @@ class EnqueueElasticaExtension extends Extension
         $container->register('enqueue_elastica.populate_processor', PopulateProcessor::class)
             ->addArgument(new Reference('fos_elastica.pager_provider_registry'))
             ->addArgument(new Reference('fos_elastica.pager_persister_registry'))
+            ->addArgument(new Reference('fos_elastica.index_manager'))
 
             ->addTag('enqueue.command_subscriber', ['client' => $transport])
             ->addTag('enqueue.transport.processor', ['transport' => $transport])
@@ -49,6 +50,7 @@ class EnqueueElasticaExtension extends Extension
             ->addArgument(new Reference('enqueue_elastica.context'))
             ->addArgument(new Reference('fos_elastica.persister_registry'))
             ->addArgument(new Reference('event_dispatcher'))
+            ->addArgument(new Reference('fos_elastica.index_manager'))
 
             ->addTag('fos_elastica.pager_persister', ['persisterName' => 'queue'])
             ->setPublic(true)

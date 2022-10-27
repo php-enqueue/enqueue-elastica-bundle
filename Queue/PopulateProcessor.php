@@ -4,6 +4,7 @@ namespace Enqueue\ElasticaBundle\Queue;
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\QueueSubscriberInterface;
 use Enqueue\Consumption\Result;
+use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Persister\InPlacePagerPersister;
 use FOS\ElasticaBundle\Persister\PagerPersisterRegistry;
 use FOS\ElasticaBundle\Provider\PagerProviderRegistry;
@@ -18,12 +19,16 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
 
     private $pagerPersisterRegistry;
 
+    private $indexManager;
+
     public function __construct(
         PagerProviderRegistry $pagerProviderRegistry,
-        PagerPersisterRegistry $pagerPersisterRegistry
+        PagerPersisterRegistry $pagerPersisterRegistry,
+        IndexManager $indexManager
     ) {
         $this->pagerPersisterRegistry = $pagerPersisterRegistry;
         $this->pagerProviderRegistry = $pagerProviderRegistry;
+        $this->indexManager = $indexManager;
     }
 
     public function process(Message $message, Context $context): Result
@@ -52,6 +57,10 @@ final class PopulateProcessor implements Processor, CommandSubscriberInterface, 
             $options = $data['options'];
             $options['first_page'] = $data['page'];
             $options['last_page'] = $data['page'];
+
+            if (isset($options['realIndexName'])) {
+                $this->indexManager->getIndex($options['indexName'])->overrideName($options['realIndexName']);
+            }
 
             $provider = $this->pagerProviderRegistry->getProvider($options['indexName']);
             $pager = $provider->provide($options);
